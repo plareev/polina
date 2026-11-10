@@ -11,7 +11,9 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 html,body{height:100%;margin:0;overflow:hidden}
 body{background:linear-gradient(160deg,#ffb3d1 0%,#ff7eb0 45%,#d6336c 100%);color:#fff;
-font-family:"Playfair Display",Georgia,serif;-webkit-tap-highlight-color:transparent;user-select:none}
+font-family:"Playfair Display",Georgia,serif;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.screen,.fp,.fp *,.env,.env *,#mus{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.fp svg{pointer-events:none}
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;transition:opacity .9s,transform .9s}
 .hide{opacity:0;pointer-events:none;transform:scale(1.05)}
 .fl{position:fixed;bottom:-40px;opacity:0;animation:up linear forwards;pointer-events:none;z-index:0;color:#fff}
@@ -39,7 +41,7 @@ box-shadow:0 0 40px rgba(255,255,255,.5);touch-action:none;color:#fff;cursor:poi
 .env.open{animation:none}.env.open .flap{transform:rotateX(180deg);z-index:1}.env.open .seal{opacity:0}
 .letter{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;padding:calc(20px + env(safe-area-inset-top,0px)) 16px 20px;background:rgba(120,10,60,.45);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .8s}
 .letter.show{opacity:1;pointer-events:auto}
-.paper{background:var(--cream);color:var(--ink);width:100%;max-width:420px;max-height:86vh;overflow:auto;border-radius:14px;padding:28px 24px;box-shadow:0 20px 60px rgba(90,0,40,.45);transform:translateY(40px) scale(.94);transition:transform .9s;user-select:text;-webkit-overflow-scrolling:touch}
+.paper{background:var(--cream);color:var(--ink);width:100%;max-width:420px;max-height:86vh;overflow:auto;border-radius:14px;padding:28px 24px;box-shadow:0 20px 60px rgba(90,0,40,.45);transform:translateY(40px) scale(.94);transition:transform .9s;-webkit-user-select:text;user-select:text;-webkit-overflow-scrolling:touch}
 .letter.show .paper{transform:none}
 .paper h2{font-family:Caveat,cursive;font-size:38px;margin:0 0 12px;color:var(--rose)}
 .paper p{font-family:Caveat,"Segoe Script",cursive;font-size:25px;line-height:1.3;margin:0 0 12px;opacity:0;transform:translateY(10px);transition:all .8s}
@@ -49,6 +51,17 @@ box-shadow:0 0 40px rgba(255,255,255,.5);touch-action:none;color:#fff;cursor:poi
 .pic{background:#fff;padding:8px 8px 22px;box-shadow:0 6px 16px rgba(90,0,40,.25);width:46%;min-width:130px;transform:rotate(var(--r));opacity:0;transition:opacity 1s}
 .pic.in{opacity:1}.pic img{width:100%;display:block}
 #mus{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:14px;z-index:9;width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.35);color:#fff;font-size:20px;display:none}
+.bokeh{position:fixed;border-radius:50%;background:rgba(255,255,255,.16);pointer-events:none;animation:float 7s ease-in-out infinite}
+.side{display:none}.hd{display:none}
+@media (min-width:900px){
+h1{font-size:68px}.script{font-size:42px}.days{font-size:40px}.hint{font-size:18px}
+.env{width:400px;height:266px}.env .seal{width:60px;height:60px;margin:-30px 0 0 -30px;font-size:30px}
+.fp{width:190px;height:190px}.fp:hover{box-shadow:0 0 60px rgba(255,255,255,.8)}
+.paper{max-width:760px;padding:46px 54px}.paper p{font-size:30px}.paper h2{font-size:50px}
+.pic{width:30%}
+.side{display:block;position:fixed;top:50%;width:230px;background:#fff;padding:10px 10px 30px;box-shadow:0 14px 34px rgba(120,10,60,.4);z-index:1;transform:translateY(-50%) rotate(var(--r))}
+.side img{width:100%;display:block}
+.hd{display:inline}.hm{display:none}}
 </style>
 </head>
 <body>
@@ -61,7 +74,7 @@ box-shadow:0 0 40px rgba(255,255,255,.5);touch-action:none;color:#fff;cursor:poi
     <svg viewBox="0 0 120 120"><circle class="ring" cx="60" cy="60" r="56"/>
       <path class="print" d="M38 84V60a22 22 0 0 1 44 0v8M48 92V60a12 12 0 0 1 24 0v16q0 10-6 18M58 98V60M28 72V58a32 32 0 0 1 64 0v8M90 78v6"/></svg>
   </button>
-  <div class="hint">приложи палец и удерживай</div>
+  <div class="hint"><span class="hm">приложи палец и удерживай</span><span class="hd">нажми на кнопку и подержи</span></div>
 </section>
 
 <section class="screen hide" id="main">
@@ -80,7 +93,7 @@ const CFG={
   letter:[
     "Зайчик, вот и прошло целых полгода с тех пор, как мы вместе. Для меня это пролетело как один длинный счастливый день.",
     "Я люблю наши прогулки, когда мы просто идём и болтаем обо всём подряд. Люблю вечера, когда мы смотрим сериалы и смеёмся со всего, с чего только можно.",
-    "Люблю, что ты радуешься мелочам: сладкому, цветам, каждому коту, которых мы встречаем. Я уверен, что у нас когда-нибудь точно будет и свой питомец.",
+    "Люблю, что ты радуешься мелочам: сладкому, цветам, каждому коту, которого мы встречаем. Я уверен, что у нас когда-нибудь точно будет и свой питомец.",
     "Спасибо, что ты рядом, что ты такая тёплая и настоящая. С тобой мне спокойно и весело одновременно.",
     "С полугодием, заяц. Это только начало нашей истории. Я тебя очень люблю."
   ],
@@ -113,6 +126,7 @@ function music(){if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)(
 $("mus").onclick=()=>{if(on){on=false;clearTimeout(timer);gain.gain.setTargetAtTime(0,ac.currentTime,.2);$("mus").style.opacity=.5}
  else{gain.gain.value=.22;music();$("mus").style.opacity=1}};
 
+document.addEventListener("selectstart",e=>{const n=e.target.nodeType===3?e.target.parentElement:e.target;if(!n||!n.closest(".paper"))e.preventDefault()});
 const fp=$("fp");let tm;
 fp.addEventListener("pointerdown",e=>{e.preventDefault();fp.classList.add("hold");if(navigator.vibrate)navigator.vibrate(30);
  try{music()}catch(x){}
@@ -126,6 +140,11 @@ h+='<p class="sign">'+CFG.sign+"</p>";$("paper").innerHTML=h;
 $("env").addEventListener("click",()=>{$("env").classList.add("open");setTimeout(()=>{$("letter").classList.add("show");
  const ps=document.querySelectorAll(".paper p");ps.forEach((p,i)=>setTimeout(()=>p.classList.add("in"),700+i*1000));
  document.querySelectorAll(".pic").forEach((p,i)=>setTimeout(()=>p.classList.add("in"),700+ps.length*1000+i*500))},900)});
+
+for(let i=0;i<9;i++){const b=document.createElement("div");b.className="bokeh";const s=40+Math.random()*130;
+b.style.cssText="width:"+s+"px;height:"+s+"px;left:"+Math.random()*100+"vw;top:"+Math.random()*100+"vh;animation-delay:-"+Math.random()*7+"s";document.body.prepend(b)}
+CFG.photos.slice(0,2).forEach((p,i)=>{const d=document.createElement("div");d.className="side";
+d.style.cssText=(i?"right":"left")+":7vw;--r:"+(i?5:-6)+"deg";d.innerHTML='<img src="'+p+'" alt="">';$("main").appendChild(d)});
 </script>
 </body>
 </html>
