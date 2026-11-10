@@ -94,7 +94,7 @@ h1{font-size:68px}.script{font-size:42px}.days{font-size:40px}.hint{font-size:18
 const CFG={
   start:"2026-05-11",
   letter:[
-    "Зайчик, вот и прошло целых полгода с тех пор, как мы вместе. Для меня это пролетело как один длинный счастливый день.",
+    "вот и прошло целых полгода с тех пор, как мы вместе. Для меня это пролетело как один длинный счастливый день.",
     "Я люблю наши прогулки, когда мы просто идём и болтаем обо всём подряд. Люблю вечера, когда мы смотрим сериалы и смеёмся со всего, с чего только можно.",
     "Люблю, что ты радуешься мелочам: сладкому, цветам, каждому коту, которого мы встречаем. Я уверен, что у нас когда-нибудь точно будет и свой питомец.",
     "Спасибо, что ты рядом, что ты такая тёплая и настоящая. С тобой мне спокойно и весело одновременно.",
@@ -105,7 +105,7 @@ const CFG={
 };
 const $=id=>document.getElementById(id);
 const n=Math.floor((Date.now()-new Date(CFG.start))/864e5);
-if(n>0)$("days").textContent="уже "+n+" дней вместе ♥";
+if(n>0)$("days").textContent="уже "+n+" "+(n%100>10&&n%100<15?"дней":["дней","день","дня","дня","дня","дней","дней","дней","дней","дней"][n%10])+" вместе ♥";
 
 const E=["♥","♥","🌸","🍬","🐾","🌷"];
 setInterval(()=>{const h=document.createElement("div");h.className="fl";h.textContent=E[Math.random()*E.length|0];
@@ -124,11 +124,18 @@ function note(m,t,v){const f=440*Math.pow(2,(m-69)/12);
 function loop(t0){M.forEach((c,ci)=>{for(let s=0;s<8;s++){const t=t0+(ci*8+s)*S;
  note(c[AR[s]]-(s%2?0:0),t,.35);if(ML[ci][s])note(ML[ci][s],t,.5)}});
  timer=setTimeout(()=>{if(on)loop(t0+32*S)},(32*S-1)*1000)}
-function music(){if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();gain=ac.createGain();gain.gain.value=.22;gain.connect(ac.destination)}
- ac.resume();on=true;clearTimeout(timer);loop(ac.currentTime+.1);$("mus").style.display="block"}
-$("mus").onclick=()=>{if(on){on=false;clearTimeout(timer);gain.gain.setTargetAtTime(0,ac.currentTime,.2);$("mus").style.opacity=.5}
- else{gain.gain.value=.22;music();$("mus").style.opacity=1}};
-
+let started=false;
+function silent(){try{if(navigator.audioSession)navigator.audioSession.type="playback";
+ const n=2000,b=new ArrayBuffer(44+n*2),v=new DataView(b),w=(o,s)=>[...s].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+ w(0,"RIFF");v.setUint32(4,36+n*2,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,16000,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,"data");v.setUint32(40,n*2,true);
+ const a=new Audio(URL.createObjectURL(new Blob([b],{type:"audio/wav"})));a.loop=true;a.play().catch(()=>{})}catch(x){}}
+function music(){if(started)return;
+ if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();gain=ac.createGain();gain.gain.value=.22;gain.connect(ac.destination)}
+ silent();
+ ac.resume().then(()=>{if(ac.state!=="running"||started)return;started=true;on=true;clearTimeout(timer);loop(ac.currentTime+.1);$("mus").style.display="block"}).catch(()=>{})}
+["touchend","pointerup","click"].forEach(ev=>document.addEventListener(ev,()=>{try{music()}catch(x){}},true));
+$("mus").onclick=()=>{if(!started)return;if(on){on=false;clearTimeout(timer);gain.gain.setTargetAtTime(0,ac.currentTime,.2);$("mus").style.opacity=.5}
+ else{gain.gain.cancelScheduledValues(ac.currentTime);gain.gain.value=.22;on=true;loop(ac.currentTime+.1);$("mus").style.opacity=1}};
 document.addEventListener("selectstart",e=>{const n=e.target.nodeType===3?e.target.parentElement:e.target;if(!n||!n.closest(".paper"))e.preventDefault()});
 const fp=$("fp");let tm;
 fp.addEventListener("pointerdown",e=>{e.preventDefault();fp.classList.add("hold");if(navigator.vibrate)navigator.vibrate(30);
@@ -137,12 +144,11 @@ fp.addEventListener("pointerdown",e=>{e.preventDefault();fp.classList.add("hold"
 ["pointerup","pointerleave","pointercancel"].forEach(ev=>fp.addEventListener(ev,()=>{clearTimeout(tm);fp.classList.remove("hold")}));
 const blockTouch=e=>e.preventDefault();
 $("gate").addEventListener("touchstart",blockTouch,{passive:false});
-["touchend","pointerup"].forEach(ev=>fp.addEventListener(ev,()=>{if(ac)ac.resume()}));
 document.addEventListener("selectstart",e=>{const n=e.target.nodeType===3?e.target.parentElement:e.target;if(!n||!n.closest(".paper"))e.preventDefault()});
 document.addEventListener("contextmenu",e=>{if(!e.target.closest||!e.target.closest(".paper"))e.preventDefault()});
 fp.addEventListener("contextmenu",e=>e.preventDefault());
 
-let h='<h2>Мой любимый заяц,</h2>'+CFG.letter.map(t=>"<p>"+t+"</p>").join("");
+let h='<h2>Мой зайчик,</h2>'+CFG.letter.map(t=>"<p>"+t+"</p>").join("");
 if(CFG.photos.length)h+='<div class="pics">'+CFG.photos.map((p,i)=>'<div class="pic" style="--r:'+(i%2?3:-3)+'deg"><img src="'+p+'" alt=""></div>').join("")+"</div>";
 h+='<p class="sign">'+CFG.sign+"</p>";$("paper").innerHTML=h;
 $("env").addEventListener("click",()=>{$("env").classList.add("open");setTimeout(()=>{$("letter").classList.add("show");
